@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Run HTML</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>▶️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9ecf1;--panel:#fff;--ink:#14161f;--mute:#5d6475;--line:#d3d8e2;--accent:#2a45ff;--accent-ink:#fff;--stage:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1117;--panel:#181b25;--ink:#eef0f6;--mute:#9199ae;--line:#2a2f3d;--accent:#7b8dff;--accent-ink:#0f1117;--stage:#fff}}
+:root[data-theme="dark"]{--bg:#0f1117;--panel:#181b25;--ink:#eef0f6;--mute:#9199ae;--line:#2a2f3d;--accent:#7b8dff;--accent-ink:#0f1117;--stage:#fff}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+.app{display:grid;grid-template-columns:320px 1fr;height:100%;gap:12px;padding:12px}
+aside,main{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-height:0;display:flex;flex-direction:column}
+aside{padding:20px;gap:16px;overflow:auto}
+h1{font-size:28px;line-height:1.05;font-weight:800;margin:0;letter-spacing:-.02em}
+p.sub{margin:6px 0 0;color:var(--mute)}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:22px 14px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop:focus-visible,body.dragging .drop{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);outline:none}
+.drop strong{display:block;font-size:16px}
+.drop span{color:var(--mute);font-size:13px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:7px 12px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,summary:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+li{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px}
+li.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+li .open{flex:1;text-align:left;border:0;padding:9px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+li .x{border:0;color:var(--mute);padding:9px 12px}
+details{border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;font-weight:600}
+textarea{width:100%;height:150px;margin:10px 0;resize:vertical;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar .title{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:80px}
+.stage{flex:1;min-height:0;position:relative;border-radius:0 0 12px 12px;overflow:hidden;background:var(--stage)}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--mute);background:var(--panel)}
+.empty h2{margin:0 0 6px;color:var(--ink);font-size:22px}
+.hint{font-size:12px;color:var(--mute);margin:0}
+.hide{display:none!important}
+@media (max-width:760px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;min-height:100%}aside{max-height:none}main{min-height:70vh}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div>
+      <h1>Run HTML</h1>
+      <p class="sub">Open an HTML file and see it run, right in your browser.</p>
+    </div>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose HTML files">
+      <strong>Drop HTML files here</strong>
+      <span>or click to choose files</span>
+    </div>
+    <input type="file" id="file" accept=".html,.htm,text/html" multiple hidden>
+    <ul id="list" aria-label="Opened files"></ul>
+    <details id="paste">
+      <summary>Paste code instead</summary>
+      <textarea id="code" spellcheck="false" placeholder="<h1>Hello</h1>"></textarea>
+      <button class="primary" id="runCode">Run code</button>
+    </details>
+    <p class="hint">Files run in a sandbox and never leave your device. Linked local files (images, CSS, scripts) won't load, so use single-file pages.</p>
+    <button id="theme" aria-label="Toggle dark mode">Toggle theme</button>
+  </aside>
+  <main>
+    <div class="bar">
+      <span class="title" id="title">No file open</span>
+      <button id="reload" disabled>Reload</button>
+      <button id="newtab" disabled>Open in new tab</button>
+      <button id="full" disabled>Full screen</button>
+    </div>
+    <div class="stage">
+      <iframe id="frame" title="Preview" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-pointer-lock allow-downloads"></iframe>
+      <div class="empty" id="empty"><div><h2>Nothing running yet</h2>Add an .html file to preview it here.</div></div>
+    </div>
+  </main>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const files=[];let cur=-1;
+const frame=$('frame');
+
+function render(){
+  const list=$('list');list.innerHTML='';
+  files.forEach((f,i)=>{
+    const li=document.createElement('li');if(i===cur)li.className='on';
+    const b=document.createElement('button');b.className='open';b.textContent=f.name;b.onclick=()=>select(i);
+    const x=document.createElement('button');x.className='x';x.textContent='✕';x.setAttribute('aria-label','Remove '+f.name);
+    x.onclick=()=>remove(i);
+    li.append(b,x);list.append(li);
+  });
+  const has=cur>=0;
+  $('empty').classList.toggle('hide',has);
+  ['reload','newtab','full'].forEach(id=>$(id).disabled=!has);
+  $('title').textContent=has?files[cur].name:'No file open';
+}
+function select(i){cur=i;frame.srcdoc=files[i].html;render()}
+function remove(i){
+  files.splice(i,1);
+  if(!files.length){cur=-1;frame.srcdoc=''}
+  else{cur=Math.min(cur>i?cur-1:cur,files.length-1);if(i===cur||cur>=0)frame.srcdoc=files[cur].html}
+  render();
+}
+async function addFiles(fl){
+  const picked=[...fl].filter(f=>/\.html?$/i.test(f.name)||f.type==='text/html');
+  if(!picked.length){alert('Those files aren\'t HTML. Choose a .html or .htm file.');return}
+  for(const f of picked)files.push({name:f.name,html:await f.text()});
+  select(files.length-1);
+}
+const drop=$('drop'),input=$('file');
+drop.onclick=()=>input.click();
+drop.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click()}};
+input.onchange=()=>{addFiles(input.files);input.value=''};
+['dragenter','dragover'].forEach(t=>addEventListener(t,e=>{e.preventDefault();document.body.classList.add('dragging')}));
+['dragleave','drop'].forEach(t=>addEventListener(t,e=>{e.preventDefault();if(t==='drop'||e.relatedTarget===null)document.body.classList.remove('dragging')}));
+addEventListener('drop',e=>{if(e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files)});
+
+$('runCode').onclick=()=>{
+  const v=$('code').value.trim();if(!v)return;
+  files.push({name:'Pasted code '+(files.filter(f=>f.name.startsWith('Pasted')).length+1),html:v});
+  select(files.length-1);
+};
+$('reload').onclick=()=>{frame.srcdoc='';requestAnimationFrame(()=>frame.srcdoc=files[cur].html)};
+$('newtab').onclick=()=>{
+  const url=URL.createObjectURL(new Blob([files[cur].html],{type:'text/html'}));
+  window.open(url,'_blank');setTimeout(()=>URL.revokeObjectURL(url),60000);
+};
+$('full').onclick=()=>{(frame.requestFullscreen||frame.webkitRequestFullscreen||(()=>{})).call(frame)};
+$('theme').onclick=()=>{
+  const r=document.documentElement;
+  const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+  r.dataset.theme=dark?'light':'dark';
+};
+render();
+</script>
+</body>
+</html>
